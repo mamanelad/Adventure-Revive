@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class Key : MonoBehaviour
 {
+    public GameObject gateTrigger;
+    private bool gateIsOpen;
+    
     public BoxCollider2D boxCollider2D;
     public HingeJoint2D hingeJoint2D;
     public Rigidbody2D rigidbody2D;
@@ -17,10 +20,13 @@ public class Key : MonoBehaviour
     private float _spaceToPlayerAfterCollision = 0.095f;
 
     // Start is called before the first frame update
+  
+
     void Start()
     {
         // Set the joint between the key and the player to false
         hingeJoint2D.enabled = false;
+        gateIsOpen = false; 
     }
 
 
@@ -32,6 +38,7 @@ public class Key : MonoBehaviour
             collisionHappen = false;
         }
 
+        //check if the player want to rellese the key 
         if (Input.GetKey(KeyCode.Space) & _joint == true)
         {
             hingeJoint2D.enabled = false;
@@ -40,6 +47,17 @@ public class Key : MonoBehaviour
             rigidbody2D.velocity = Vector2.zero;
             
         }
+
+        
+        //check if the key got into the gate
+        if (transform.position.y >= gateTrigger.transform.position.y &
+            gateTrigger.transform.position.x - 1 <= transform.position.x &
+            transform.position.x <= gateTrigger.transform.position.x + 1)
+        {
+            gateIsOpen = true; 
+            print("kaka");
+        }
+
     }
 
 

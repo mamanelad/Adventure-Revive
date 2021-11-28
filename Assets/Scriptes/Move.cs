@@ -5,13 +5,25 @@ using UnityEngine;
 
 public class Move : MonoBehaviour
 {
-    public Rigidbody2D rigidbody2D;
+    public Sprite[] sprites;
+    public SpriteRenderer SpriteRenderer;
+    private int numSprite;
     
+    public Rigidbody2D rigidbody2D;
+    public GameObject passGreenYellow;
+
     private bool _leftPressed;
     private bool _rightPressed;
     private bool _upPressed;
     private bool _downPressed;
+    private int _color = 0;
 
+
+    private void Awake()
+    {
+        numSprite = 0;
+        SpriteRenderer.sprite = sprites[numSprite];
+    }
 
     private void FixedUpdate()
     {
@@ -35,6 +47,19 @@ public class Move : MonoBehaviour
         _rightPressed = Input.GetKey(KeyCode.RightArrow);
         _upPressed = Input.GetKey(KeyCode.UpArrow);
         _downPressed = Input.GetKey(KeyCode.DownArrow);
-        
+
+
+        if (rigidbody2D.position.y < passGreenYellow.transform.position.y & _color == 0)
+        {
+            GameManager.SwitchCamara(++_color);
+            SpriteRenderer.sprite = sprites[_color];
+        }
+
+        if (rigidbody2D.position.y > passGreenYellow.transform.position.y & _color == 1)
+        {
+            GameManager.SwitchCamara(--_color);
+            SpriteRenderer.sprite = sprites[_color];
+        } 
+
     }
 }
