@@ -5,68 +5,53 @@ using UnityEngine;
 
 public class Key : MonoBehaviour
 {
-    public GameObject gateTrigger;
-    private bool gateIsOpen;
-    
     public BoxCollider2D boxCollider2D;
     public HingeJoint2D hingeJoint2D;
     public Rigidbody2D rigidbody2D;
 
 
-    private bool _joint = false;
+    private bool _jointPlayer = false;
+    private bool collisionHappenPlayer = false;
 
-    private bool collisionHappen = false;
+    private float _spaceToPlayerAfterCollision = 0.05f;
 
-    private float _spaceToPlayerAfterCollision = 0.095f;
 
     // Start is called before the first frame update
-  
+
 
     void Start()
     {
         // Set the joint between the key and the player to false
         hingeJoint2D.enabled = false;
-        gateIsOpen = false; 
     }
 
 
     private void Update()
     {
-        if (!_joint & collisionHappen)
+        if (!_jointPlayer & collisionHappenPlayer)
         {
             StartCoroutine(PlayerCollisionHelper());
-            collisionHappen = false;
+            collisionHappenPlayer = false;
         }
 
+
         //check if the player want to rellese the key 
-        if (Input.GetKey(KeyCode.Space) & _joint == true)
+        if (Input.GetKey(KeyCode.Space) & _jointPlayer == true)
         {
             hingeJoint2D.enabled = false;
             boxCollider2D.enabled = true; //that the key will not crash with the walls.  
-            _joint = false;
+            _jointPlayer = false;
             rigidbody2D.velocity = Vector2.zero;
-            
         }
-
-        
-        //check if the key got into the gate
-        if (transform.position.y >= gateTrigger.transform.position.y &
-            gateTrigger.transform.position.x - 1 <= transform.position.x &
-            transform.position.x <= gateTrigger.transform.position.x + 1)
-        {
-            gateIsOpen = true; 
-            print("kaka");
-        }
-
     }
 
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        collisionHappen = true;
-
-        // Set the joint between the key and the player to true.
-        //And disable the key box collider
+        if (other.gameObject.name == "Player")
+        {
+            collisionHappenPlayer = true;
+        }
     }
 
 
@@ -78,9 +63,6 @@ public class Key : MonoBehaviour
 
         hingeJoint2D.enabled = true;
         boxCollider2D.enabled = false; //that the key will not crash with the walls.  
-        _joint = true;
+        _jointPlayer = true;
     }
-
-
-    // Update is called once per frame
 }
