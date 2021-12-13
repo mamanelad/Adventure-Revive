@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ public class Gate : MonoBehaviour
     public GameObject gateTrigger;
     public GameObject key;
     public Animator gateAnimator;
+
+    public int numGate;
 
     private bool _gateIsOpen = false;
     private bool _animationFinish = true;
@@ -69,40 +72,24 @@ public class Gate : MonoBehaviour
 
     private void GateAnimation()
     {
-        if (_gateIsOpen)
-        {
-            gateAnimator.SetTrigger(CloseGate);
-        }
-
-        else
-        {
-            gateAnimator.SetTrigger(OpenGate);
-        }
+        gateAnimator.SetTrigger(_gateIsOpen ? CloseGate : OpenGate);
     }
 
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.name == "Player" & _gateIsOpen)
         {
-            if (!gateIsBlack)
-            {
-                GameManager.SwitchCamara(1);
-            }
-
-            else
-            {
-                GameManager.SwitchCamara(12);
-            }
+            GameManager.SwitchCamara(numGate == 1 ? 12 : 1);
         }
     }
 
-
+    
     public void OpenGateFromOutSide()
     {
         var position = gateTrigger.transform.position;
             float temp = position.y;
             gateAnimator.SetTrigger(OpenGate);
             _gateIsOpen = true;
-        
+       
     }
 }
