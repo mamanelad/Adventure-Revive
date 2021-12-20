@@ -1,16 +1,16 @@
 fileFormatVersion: 2
-guid: 7f570595ca7016543b3d15a7c8650732
+guid: 9e695e60c9760dc42ac88911c5730140
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8201431250575429601
-    second: Untitled (6)_0
+      213: -6260298134374431460
+    second: cas1_0
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
-    sRGBTexture: 0
+    sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
     borderMipMap: 0
@@ -45,11 +45,11 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
-  spriteExtrude: 1
+  spriteExtrude: 32
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -94,22 +94,62 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Untitled (6)_0
+      name: cas1_0
       rect:
         serializedVersion: 2
-        x: 361
-        y: 252
-        width: 77
-        height: 69
+        x: 44
+        y: 84
+        width: 148
+        height: 140
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
-      physicsShape: []
-      tessellationDetail: 0
+      physicsShape:
+      - - {x: 16, y: -70}
+        - {x: 64, y: -70}
+        - {x: 64, y: 0}
+        - {x: 74, y: 0}
+        - {x: 74, y: 70}
+        - {x: 64, y: 70}
+        - {x: 64, y: 56}
+        - {x: 60, y: 56}
+        - {x: 60, y: 70}
+        - {x: 48, y: 70}
+        - {x: 48, y: 56}
+        - {x: 44, y: 56}
+        - {x: 44, y: 70}
+        - {x: 32, y: 70}
+        - {x: 32, y: 56}
+        - {x: 28, y: 56}
+        - {x: 28, y: 70}
+        - {x: 16, y: 70}
+        - {x: 16, y: 28}
+        - {x: -16, y: 28}
+        - {x: -16, y: 70}
+        - {x: -28, y: 70}
+        - {x: -28, y: 56}
+        - {x: -32, y: 56}
+        - {x: -32, y: 70}
+        - {x: -44, y: 70}
+        - {x: -44, y: 56}
+        - {x: -48, y: 56}
+        - {x: -48, y: 70}
+        - {x: -60, y: 70}
+        - {x: -60, y: 56}
+        - {x: -64, y: 56}
+        - {x: -64, y: 70}
+        - {x: -74, y: 70}
+        - {x: -74, y: 0}
+        - {x: -60, y: 0}
+        - {x: -60, y: -70}
+        - {x: -12, y: -70}
+        - {x: -12, y: -32}
+        - {x: 16, y: -32}
+      tessellationDetail: 1
       bones: []
-      spriteID: 1ef0654f44651d170800000000000000
-      internalID: 8201431250575429601
+      spriteID: c154298e304fe19a0800000000000000
+      internalID: -6260298134374431460
       vertices: []
       indices: 
       edges: []

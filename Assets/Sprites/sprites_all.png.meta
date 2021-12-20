@@ -693,12 +693,12 @@ TextureImporter:
       name: sprites_all_20
       rect:
         serializedVersion: 2
-        x: 256
-        y: 80
-        width: 13
-        height: 12
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+        x: 257
+        y: 87
+        width: 12
+        height: 5
+      alignment: 9
+      pivot: {x: 0.5283414, y: 0.43858948}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

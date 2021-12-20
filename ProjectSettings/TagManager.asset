@@ -9,6 +9,7 @@ TagManager:
   - Dragon
   - Grid
   - Trigger
+  - Key
   layers:
   - Default
   - TransparentFX
@@ -24,8 +25,8 @@ TagManager:
   - Gates
   - Sword
   - KillDragon
-  - 
-  - 
+  - Bridge
+  - Dead
   - 
   - 
   - 

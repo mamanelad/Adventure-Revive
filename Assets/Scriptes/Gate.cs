@@ -7,37 +7,32 @@ using UnityEngine;
 
 public class Gate : MonoBehaviour
 {
-    public GameObject swordRoomTrigger;
-    public GameObject gateTrigger;
-    public GameObject key;
-    public Animator gateAnimator;
+    #region public Fields
 
+    public GameObject gateTrigger;
+    public GameObject goodKey;
+    public Animator gateAnimator;
     public int numGate;
 
-    private bool _gateIsOpen = false;
-    private bool _animationFinish = true;
-    private bool gateIsBlack = false;
+    #endregion
 
+    #region private Fields
 
     private static readonly int CloseGate = Animator.StringToHash("closeGate");
-
     private static readonly int OpenGate = Animator.StringToHash("openGate");
+    private bool _gateIsOpen = false;
+    private bool _animationFinish = true;
 
-    private void Awake()
-    {
-        if (gameObject.name == "GateBlack")
-        {
-            gateIsBlack = true;
-        }
-    }
+    #endregion
+    
+    #region MonoBehaviour
 
-    void Update()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (KeyImpactGateTrigger() & _animationFinish)
-        {
-            _animationFinish = false;
-            GateAnimation();
-        }
+        //Opening the gate
+        if (!(other.CompareTag("Key") & _animationFinish & other.gameObject == goodKey)) return;
+        _animationFinish = false;
+        GateAnimation();
     }
 
     public void SetGateOpen()
@@ -52,44 +47,36 @@ public class Gate : MonoBehaviour
         _animationFinish = true;
     }
 
-
-    private bool KeyImpactGateTrigger()
-    {
-        var swordRoomPosition = this.swordRoomTrigger.transform.position;
-        float posSy = swordRoomPosition.y;
-        float space = 0.3f;
-        var keyPosition = key.transform.position;
-        float posKx = keyPosition.x;
-        float posKy = keyPosition.y;
-
-        var triggerPosition = gateTrigger.transform.position;
-        float posTx = triggerPosition.x;
-        float posTy = triggerPosition.y;
-        return (posTx - space <= posKx & posKx <= posTx + space
-                                       & posTy <= posKy
-                                       & posKy < posSy);
-    }
-
+    /**
+     * Triggers gate animation.
+     */
     private void GateAnimation()
     {
         gateAnimator.SetTrigger(_gateIsOpen ? CloseGate : OpenGate);
     }
 
+    /**
+     * Transferring the player into the castle after
+     * opening the gate and colliding with it.
+     */
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.name == "Player" & _gateIsOpen)
+        if (other.gameObject.CompareTag("Player") & _gateIsOpen)
         {
             GameManager.SwitchCamara(numGate == 1 ? 12 : 1);
         }
     }
 
-    
+    /**
+     * Opening the gate, if the player is inside and the gate got closed.
+     */
     public void OpenGateFromOutSide()
     {
         var position = gateTrigger.transform.position;
-            float temp = position.y;
-            gateAnimator.SetTrigger(OpenGate);
-            _gateIsOpen = true;
-       
+        var temp = position.y;
+        gateAnimator.SetTrigger(OpenGate);
+        _gateIsOpen = true;
     }
+
+    #endregion
 }

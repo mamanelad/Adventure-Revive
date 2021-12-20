@@ -1,171 +1,207 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using Random = System.Random;
 
 public class Dragon : MonoBehaviour
 {
-    public Transform[] patrolPoints;
-    private Transform _currentPatrolPoint;
-    private int _currentPatrolIndex;
-    
-    public Rigidbody2D rigidB;
+    #region Fields
+
+    //Other Game objects
     public GameObject player;
+    public Player PlayerP;
+    public GameObject mouth;
+
+    //Patrol
+    public bool patrol;
+    public Transform[] patrolPoints; // Patrol points for the dragon to patrol 
+    private int _currentPatrolIndex = 0;
+    private Transform _currentPatrolPoint;
+
+    //Components
+    private Animator _animator;
+    public Rigidbody2D rBDragon;
+    private PolygonCollider2D _mouthCollider;
+    private SpriteRenderer _spriteRenderer;
+
+    // List of Components
+    public Sprite[] sprites;
+    public PolygonCollider2D[] polygonCollider2Ds;
+
+    // Dragon mouth coordinates
     public float toDragonMouthX;
     public float toDragonMouthY;
-    public bool _deadDragon;
-    private bool _deadPlayer = false;
-    public bool _move = false;
-    private bool _returnMovement = false;
+
+    //General
     public int curCamara;
-
-
-    private Animator _animator;
-    public float rotateFrom;
-
-    public Sprite[] sprites;
-
-
-    public PolygonCollider2D[] polygonCollider2Ds;
-    public GameObject mouthCollider2D;
-
-    private int _currentStage;
-    private int _nextStage;
-    private bool _mouthTriggerMode = false;
-    private bool _changeState = false;
-    private bool _openMouth = false;
-    public float timeToWait;
-
-    public GameObject spriteGameObjectDragon;
-    private SpriteRenderer _spriteRenderer;
-    private Vector2 _movement;
-
-    public bool startWithPatrol;
     public bool metPlayer = false;
-    public float moveSpeed;
 
+    #endregion
+
+    #region Movement
+
+    private bool _returnMovement = false;
+    public bool dragonIsMoving = false;
+    public float timeToWait;
+    private Vector2 _movement;
+    public float moveSpeed;
+    
+
+    #endregion
+
+    #region Player attacking
+
+    public bool dragonIsDead = false;
+    public bool playerIsDead = false;
+    private bool _mouthIsOpen = false;
+
+    #endregion
+    
+    #region status
+
+    private int _currentStage = 0;
+    private int _nextStage;
+    private bool _changeState = false;
+    
+
+    #endregion
+    
+    #region Animation
+
+    public float rotateFrom;
+    private static readonly int Rotate1 = Animator.StringToHash("rotate");
+
+    #endregion
+    
+    #region MonoBehaviour
 
     private void Awake()
     {
-        if (startWithPatrol)
-        {
-            _currentPatrolIndex = 0;
+        // Setting the first patrol point
+        if (patrol)
             _currentPatrolPoint = patrolPoints[_currentPatrolIndex];
-        }
-     
-        _spriteRenderer = spriteGameObjectDragon.GetComponent<SpriteRenderer>();
-        _currentStage = 0;
-        foreach (var t in polygonCollider2Ds)
-        {
-            t.enabled = false;
-        }
 
-        MouthTriggerChangeMode(_mouthTriggerMode);
-        polygonCollider2Ds[0].enabled = true;
+        //Setting game object components
+        _spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
         _spriteRenderer.sprite = sprites[0];
-        _animator = spriteGameObjectDragon.GetComponent<Animator>();
+        _animator = gameObject.GetComponentInChildren<Animator>();
+        rBDragon = gameObject.GetComponent<Rigidbody2D>();
+        _mouthCollider = mouth.GetComponent<PolygonCollider2D>();
+        _mouthCollider.isTrigger = true;
+        _mouthCollider.enabled = false;
+
+
+        //Disabling all the not first polygonCollider2Ds 
+        foreach (var polygonCollider2D in polygonCollider2Ds)
+            polygonCollider2D.enabled = false;
+        polygonCollider2Ds[0].enabled = true;
     }
 
 
     private void FixedUpdate()
     {
         
-        if (_deadDragon) return;
-        Rotate();
-        if (startWithPatrol & !metPlayer)
-        { 
-            Movement(_movement);
-            rigidB.velocity = Vector2.zero;
-            Vector2 direction = patrolPoints[_currentPatrolIndex].position - transform.position;
-            direction.Normalize();
-            _movement = direction;
+        if (dragonIsDead) return;
 
-            if (Vector2.Distance(transform.position, _currentPatrolPoint.position) < 1.0f)
-            {
-                _currentPatrolIndex = ((_currentPatrolIndex + 1) % patrolPoints.Length);
-                _currentPatrolPoint = patrolPoints[_currentPatrolIndex];
+        if (metPlayer)
+            Rotate();
 
-            }
-        }
-        
-        
-        if (_move)
-        {
-            Movement(_movement);
-            rigidB.velocity = Vector2.zero;
-            Vector2 direction = player.transform.position - transform.position;
-            direction.Normalize();
-            _movement = direction;
-        }
+        if (patrol & !metPlayer)
+            Patrol();
+
+        if (dragonIsMoving & metPlayer)
+            MoveToPlayer(_movement);
 
         if (_changeState)
             StartCoroutine(WaitToStateChange(timeToWait));
-        
     }
 
 
+    /**
+     * Moving the dragon to the player
+     */
+    private void MoveToPlayer(Vector2 direction)
+    {
+        rBDragon.MovePosition((Vector2) gameObject.transform.position + (direction * moveSpeed * Time.deltaTime));
+        var newP = rBDragon.position;
+        rBDragon.velocity = Vector2.zero;
+        Vector2 directionToChangeTo = player.transform.position - transform.position;
+        directionToChangeTo.Normalize();
+        _movement = directionToChangeTo;
+    }
 
+    /**
+     * Moving the dragon on patrol 
+     */
+    private void Patrol()
+    {
+        MoveToPlayer(_movement);
+        rBDragon.velocity = Vector2.zero;
+        Vector2 direction = patrolPoints[_currentPatrolIndex].position - transform.position;
+        direction.Normalize();
+        _movement = direction;
+
+        if (!(Vector2.Distance(transform.position, _currentPatrolPoint.position) < 1.0f)) return;
+        _currentPatrolIndex = ((_currentPatrolIndex + 1) % patrolPoints.Length);
+        _currentPatrolPoint = patrolPoints[_currentPatrolIndex];
+    }
+
+
+    /**
+     * Calling the rotate dragon animation if needed.
+     */
     private void Rotate()
     {
         var dicY = Math.Abs(_movement.y);
-        if (_move & (dicY <= rotateFrom) & (dicY >= -rotateFrom))
-        {
-            _animator.SetBool("rotate", true);
-        }
-
+        if (dragonIsMoving & (dicY <= rotateFrom) & (dicY >= -rotateFrom))
+            _animator.SetBool(Rotate1, true);
         else
-        {
-            _animator.SetBool("rotate", false);
-        }
-    }
-
-
-    private void Movement(Vector2 direction)
-    {
-        rigidB.MovePosition((Vector2) gameObject.transform.position + (direction * moveSpeed * Time.deltaTime));
-        Vector2 newP = rigidB.position;
-        
+            _animator.SetBool(Rotate1, false);
     }
 
 
     private void OnCollisionEnter2D(Collision2D other)
     {
         var nameO = other.gameObject.name;
-        print(nameO);
         CollisionAndTrigger(nameO);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Trigger")) return;
         var nameO = other.gameObject.name;
         CollisionAndTrigger(nameO);
     }
 
 
-    private void CollisionAndTrigger(String nameO)
+    /**
+     * Setting the right thing to do depends on which gameobjects the dragon
+     * encounteras with.
+     */
+    private void CollisionAndTrigger(string nameO)
     {
-        if (_currentStage == 0 & !_deadPlayer)
+        if (_currentStage == 0 & !playerIsDead)
         {
-            _move = false;
+            dragonIsMoving = false;
             _changeState = true;
             switch (nameO)
             {
                 case "Player":
                     _nextStage = 1;
-                    _mouthTriggerMode = true;
-                    _openMouth = true;
+                    _mouthCollider.enabled = true;
+                    _mouthIsOpen = true;
+                    GameManager.PlaySound(2);
                     break;
-                case "KillDragon":
+                case "Sword":
                     _nextStage = 2;
+                    GameManager.PlaySound(5);
                     break;
             }
         }
     }
 
 
+    /**
+     * Waiting before state changing 
+     */
     private IEnumerator WaitToStateChange(float timeToWait)
     {
         yield return new WaitForSeconds(timeToWait);
@@ -173,34 +209,43 @@ public class Dragon : MonoBehaviour
     }
 
 
+    /**
+     * Setting all the values to be accourate,
+     * after the dragon ate the player.
+     */
     public void EatPlayer()
     {
-        print("eatplayer");
+        GameManager.PlaySound(4);
         _currentStage = 1;
         _nextStage = 0;
-        _mouthTriggerMode = false;
         _changeState = true;
-        _deadPlayer = true;
-        _move = false;
+        playerIsDead = true;
+        dragonIsMoving = false;
+        player.layer = 15;
     }
 
 
+    /**
+     * Returning the dragon back to Normal Mode
+     */
     public void ReturnNormal()
     {
-        print("returnnormal");
         _currentStage = 1;
         _nextStage = 0;
-        _mouthTriggerMode = false;
+        _mouthCollider.enabled = false;
+        // _mouthTriggerMode = false;
         _changeState = true;
         _returnMovement = true;
     }
 
 
+    /**
+     * Changing dragon mode :
+     * sprite, colider , position and values
+     */
     private void ChangeDragonState()
     {
         _changeState = false;
-        MouthTriggerChangeMode(_mouthTriggerMode);
-
         var toRemove = polygonCollider2Ds[_currentStage];
         toRemove.enabled = false;
         _currentStage = _nextStage;
@@ -211,28 +256,23 @@ public class Dragon : MonoBehaviour
 
         if (_returnMovement)
         {
-            _move = true;
+            dragonIsMoving = true;
             _returnMovement = false;
         }
 
 
         var newPosition = player.GetComponent<Rigidbody2D>().position;
-        if (_openMouth)
+        if (_mouthIsOpen)
         {
             newPosition.x += toDragonMouthX;
             newPosition.y -= toDragonMouthY;
-            rigidB.position = newPosition;
-            _openMouth = false;
+            rBDragon.position = newPosition;
+            _mouthIsOpen = false;
         }
 
         if (_currentStage == 2)
-            _deadDragon = true;
+            dragonIsDead = true;
     }
 
-
-    private void MouthTriggerChangeMode(bool mode)
-    {
-        var mouthCollider = mouthCollider2D.GetComponent<PolygonCollider2D>();
-        mouthCollider.enabled = mode;
-    }
+    #endregion
 }
